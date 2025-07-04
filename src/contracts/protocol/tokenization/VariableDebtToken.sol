@@ -12,12 +12,10 @@ contract VariableDebtToken is ERC20Upgradeable {
         _;
     }
 
-    function initialize(
-        address _pool,
-        address _underlyingAsset,
-        string memory _name,
-        string memory _symbol
-    ) public initializer {
+    function initialize(address _pool, address _underlyingAsset, string memory _name, string memory _symbol)
+        public
+        initializer
+    {
         __ERC20_init(_name, _symbol);
         pool = _pool;
         underlyingAsset = _underlyingAsset;

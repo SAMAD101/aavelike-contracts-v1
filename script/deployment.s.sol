@@ -60,10 +60,7 @@ contract DeployScript is Script {
 
         // Configure the reserve
         poolConfigurator.initReserve(
-            address(underlyingAsset),
-            address(iToken),
-            address(debtToken),
-            address(interestRateStrategy)
+            address(underlyingAsset), address(iToken), address(debtToken), address(interestRateStrategy)
         );
 
         vm.stopBroadcast();

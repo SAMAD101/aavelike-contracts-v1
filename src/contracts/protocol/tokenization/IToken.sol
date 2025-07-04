@@ -17,12 +17,10 @@ contract IToken is ERC20Upgradeable {
         _;
     }
 
-    function initialize(
-        address _pool,
-        address _underlyingAsset,
-        string memory _name,
-        string memory _symbol
-    ) public initializer {
+    function initialize(address _pool, address _underlyingAsset, string memory _name, string memory _symbol)
+        public
+        initializer
+    {
         __ERC20_init(_name, _symbol);
         pool = _pool;
         underlyingAsset = _underlyingAsset;
@@ -37,10 +35,7 @@ contract IToken is ERC20Upgradeable {
         ERC20Upgradeable(underlyingAsset).transfer(user, amount);
     }
 
-    function transferUnderlyingTo(
-        address to,
-        uint256 amount
-    ) external onlyPool {
+    function transferUnderlyingTo(address to, uint256 amount) external onlyPool {
         ERC20Upgradeable(underlyingAsset).transfer(to, amount);
     }
 }

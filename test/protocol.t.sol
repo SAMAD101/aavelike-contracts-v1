@@ -27,10 +27,7 @@ contract ProtocolTest is Test {
         addressesProvider = new PoolAddressesProvider();
         addressesProvider.initialize(address(this));
 
-        console.log(
-            "Addresses Provider initialized at:",
-            address(addressesProvider)
-        );
+        console.log("Addresses Provider initialized at:", address(addressesProvider));
 
         pool = new Pool();
         poolConfigurator = new PoolConfigurator();
@@ -52,47 +49,26 @@ contract ProtocolTest is Test {
 
         addressesProvider.setPool(address(pool));
         addressesProvider.setPriceOracle(address(oracle));
-        addressesProvider.setAddress(
-            keccak256("POOL_CONFIGURATOR"),
-            address(poolConfigurator)
-        );
-        addressesProvider.setAddress(
-            keccak256("COLLATERAL_MANAGER"),
-            address(collateralManager)
-        );
+        addressesProvider.setAddress(keccak256("POOL_CONFIGURATOR"), address(poolConfigurator));
+        addressesProvider.setAddress(keccak256("COLLATERAL_MANAGER"), address(collateralManager));
 
         pool.initialize(addressesProvider);
         console.log("Pool initialized at:", address(pool));
         poolConfigurator.initialize(addressesProvider);
-        console.log(
-            "PoolConfigurator initialized at:",
-            address(poolConfigurator)
-        );
+        console.log("PoolConfigurator initialized at:", address(poolConfigurator));
         oracle.initialize(address(this));
         console.log("Oracle initialized at:", address(oracle));
         collateralManager.initialize(addressesProvider);
-        console.log(
-            "CollateralManager initialized at:",
-            address(collateralManager)
-        );
+        console.log("CollateralManager initialized at:", address(collateralManager));
 
         poolConfigurator.initReserve(
-            address(underlyingAsset),
-            address(iToken),
-            address(debtToken),
-            address(interestRateStrategy)
+            address(underlyingAsset), address(iToken), address(debtToken), address(interestRateStrategy)
         );
 
-        console.log(
-            "Reserve initialized for underlying asset at:",
-            address(underlyingAsset)
-        );
+        console.log("Reserve initialized for underlying asset at:", address(underlyingAsset));
         console.log("iToken initialized at:", address(iToken));
         console.log("DebtToken initialized at:", address(debtToken));
-        console.log(
-            "InterestRateStrategy initialized at:",
-            address(interestRateStrategy)
-        );
+        console.log("InterestRateStrategy initialized at:", address(interestRateStrategy));
     }
 
     function testDeployment() public view {
@@ -186,15 +162,9 @@ contract ProtocolTest is Test {
         underlyingAsset.approve(address(collateralManager), 100e18);
 
         pool.liquidate(
-            address(addressesProvider),
-            liquidator,
-            address(this),
-            address(underlyingAsset),
-            100e18,
-            200e18,
-            false
+            address(addressesProvider), liquidator, address(this), address(underlyingAsset), 100e18, 200e18, false
         );
-        
+
         vm.stopPrank();
 
         // Check that the user has no debt tokens

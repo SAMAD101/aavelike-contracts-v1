@@ -25,26 +25,15 @@ contract PoolCollateralManager is Initializable {
         uint256 liquidatedCollateralFor,
         bool receiveIToken
     );
-    event ReserveUsedAsCollateralEnabled(
-        address indexed asset,
-        address indexed user
-    );
-    event ReserveUsedAsCollateralDisabled(
-        address indexed asset,
-        address indexed user
-    );
+    event ReserveUsedAsCollateralEnabled(address indexed asset, address indexed user);
+    event ReserveUsedAsCollateralDisabled(address indexed asset, address indexed user);
 
     modifier onlyPool() {
-        require(
-            msg.sender == addressesProvider.getPool(),
-            "Only pool can call this"
-        );
+        require(msg.sender == addressesProvider.getPool(), "Only pool can call this");
         _;
     }
 
-    function initialize(
-        PoolAddressesProvider _addressesProvider
-    ) public initializer {
+    function initialize(PoolAddressesProvider _addressesProvider) public initializer {
         addressesProvider = _addressesProvider;
     }
 
@@ -58,33 +47,13 @@ contract PoolCollateralManager is Initializable {
     ) external onlyPool {
         Pool pool = Pool(payable(addressesProvider.getPool()));
 
-        ERC20Upgradeable(asset).transferFrom(
-            liquidator,
-            address(this),
-            debtToCover
-        );
+        ERC20Upgradeable(asset).transferFrom(liquidator, address(this), debtToCover);
 
-        pool.transferITokens(
-            asset,
-            borrower,
-            liquidator,
-            liquidatedCollateralFor
-        );
+        pool.transferITokens(asset, borrower, liquidator, liquidatedCollateralFor);
 
-        pool.burnDebtTokens(
-            borrower,
-            asset,
-            debtToCover
-        );
+        pool.burnDebtTokens(borrower, asset, debtToCover);
 
-        emit Liquidation(
-            liquidator,
-            borrower,
-            asset,
-            debtToCover,
-            liquidatedCollateralFor,
-            receiveIToken
-        );
+        emit Liquidation(liquidator, borrower, asset, debtToCover, liquidatedCollateralFor, receiveIToken);
     }
 
     function setCollateralUsage(address asset, bool useAsCollateral) external {

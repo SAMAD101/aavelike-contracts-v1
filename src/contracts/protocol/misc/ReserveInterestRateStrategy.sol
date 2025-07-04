@@ -24,26 +24,18 @@ contract ReserveInterestRateStrategy {
         VARIABLE_RATE_SLOPE2 = _variableRateSlope2;
     }
 
-    function calculateInterestRates(
-        uint256 totalBorrows,
-        uint256 totalLiquidity
-    ) external view returns (uint256 liquidityRate, uint256 borrowRate) {
-        uint256 utilizationRate = totalLiquidity == 0
-            ? 0
-            : (totalBorrows * 1e18) / totalLiquidity;
+    function calculateInterestRates(uint256 totalBorrows, uint256 totalLiquidity)
+        external
+        view
+        returns (uint256 liquidityRate, uint256 borrowRate)
+    {
+        uint256 utilizationRate = totalLiquidity == 0 ? 0 : (totalBorrows * 1e18) / totalLiquidity;
 
         if (utilizationRate <= OPTIMAL_UTILIZATION_RATE) {
-            borrowRate =
-                BASE_VARIABLE_BORROW_RATE +
-                (utilizationRate * VARIABLE_RATE_SLOPE1) /
-                1e18;
+            borrowRate = BASE_VARIABLE_BORROW_RATE + (utilizationRate * VARIABLE_RATE_SLOPE1) / 1e18;
         } else {
-            borrowRate =
-                BASE_VARIABLE_BORROW_RATE +
-                VARIABLE_RATE_SLOPE1 +
-                ((utilizationRate - OPTIMAL_UTILIZATION_RATE) *
-                    VARIABLE_RATE_SLOPE2) /
-                1e18;
+            borrowRate = BASE_VARIABLE_BORROW_RATE + VARIABLE_RATE_SLOPE1
+                + ((utilizationRate - OPTIMAL_UTILIZATION_RATE) * VARIABLE_RATE_SLOPE2) / 1e18;
         }
 
         liquidityRate = (borrowRate * utilizationRate) / 1e18;
