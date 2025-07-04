@@ -10,9 +10,11 @@ import "../src/contracts/protocol/oracle/PriceOracle.sol";
 import "../src/contracts/protocol/tokenization/VariableDebtToken.sol";
 import "../src/contracts/protocol/tokenization/IToken.sol";
 import "../src/contracts/protocol/misc/ReserveInterestRateStrategy.sol";
-import "../test/mocks/ERC20Mock.sol";
 
 contract DeployScript is Script {
+    // GPU token address
+    address constant GPU_ADDRESS = 0xA96db422D0bf71fBC7581332C7b990E61963844f;
+    
     function run() external {
         vm.startBroadcast();
 
@@ -40,29 +42,45 @@ contract DeployScript is Script {
         collateralManager.initialize(addressesProvider);
         addressesProvider.setAddress(keccak256("COLLATERAL_MANAGER"), address(collateralManager));
 
-        // Deploy Interest Rate Strategy
-        ReserveInterestRateStrategy interestRateStrategy = new ReserveInterestRateStrategy(
-            8e25, // 80%
-            0,
-            4e25, // 4%
-            3e26 // 300%
+        // Deploy Interest Rate Strategy for GPU
+        ReserveInterestRateStrategy gpuStrategy = new ReserveInterestRateStrategy(
+            8e25, // 80% optimal utilization
+            0,    // 0% base rate
+            5e25, // 5% slope1
+            1e26  // 100% slope2
         );
 
-        // Deploy Underlying Asset
-        ERC20Mock underlyingAsset = new ERC20Mock();
-        underlyingAsset.__ERC20Mock_init("Gpu", "GPU");
+        // Deploy Token implementations (without initializing)
+        IToken gpuIToken = new IToken();
+        VariableDebtToken gpuDebtToken = new VariableDebtToken();
 
-        // Deploy Tokens
-        IToken iToken = new IToken();
-        iToken.initialize(address(pool), address(underlyingAsset), "iGpu", "iGPU");
-        VariableDebtToken debtToken = new VariableDebtToken();
-        debtToken.initialize(address(pool), address(underlyingAsset), "GPU Protocol Debt token", "variableDebtGPU");
-
-        // Configure the reserve
+        // Configure GPU Reserve
         poolConfigurator.initReserve(
-            address(underlyingAsset), address(iToken), address(debtToken), address(interestRateStrategy)
+            GPU_ADDRESS,
+            address(gpuIToken),
+            address(gpuDebtToken),
+            address(gpuStrategy)
         );
+
+        // Set asset price in oracle
+        // oracle.setAssetPrice(GPU_ADDRESS, 1000e8); // $1000 GPU
 
         vm.stopBroadcast();
+
+        // Log deployed addresses
+        console.log("\n=== GPUnet Deployment Complete ===");
+        console.log("Network: GPUnet (Chain ID: 4048)");
+        console.log("PoolAddressesProvider:", address(addressesProvider));
+        console.log("Pool:", address(pool));
+        console.log("PoolCollateralManager:", address(collateralManager));
+        console.log("PoolConfigurator:", address(poolConfigurator));
+        console.log("Oracle:", address(oracle));
+        console.log("");
+        console.log("=== GPU Reserve ===");
+        console.log("GPU Token:", GPU_ADDRESS);
+        console.log("GPU IToken:", address(gpuIToken));
+        console.log("GPU DebtToken:", address(gpuDebtToken));
+        console.log("GPU Strategy:", address(gpuStrategy));
+        console.log("===================================");
     }
 }
